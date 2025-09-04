@@ -40,7 +40,7 @@ export default function AuthPage() {
           </div>
           <div className="mt-4 sm:mt-5 flex items-center justify-center">
             <p className="text-base sm:text-lg lg:text-xl text-gray-600">
-              {isSignUp ? "已經是會員了嗎？" : "還不是會員嗎？"}
+              {isSignUp ? "已經是會員嗎？" : "還不是會員嗎？"}
             </p>
 
             <Button
