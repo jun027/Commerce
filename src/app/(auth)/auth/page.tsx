@@ -1,17 +1,140 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
 
-import { useRouter } from "next/navigation";
+import { Input } from "@/components/ui/input";
+
+import { Label } from "@/components/ui/label";
+
+import { ChevronLeft, Loader2 } from "lucide-react";
+
+import { getSignupFormData, handleSignupSubmit } from "@/actions/auth/signup";
+
+import { getLoginFormData, handleLoginSubmit } from "@/actions/auth/login";
+
+import { useRouter, useSearchParams } from "next/navigation";
+
+import { toast } from "sonner";
+
+import { IAttributes } from "oneentry/dist/base/utils";
+
+interface SignUpFormData {
+  email: string;
+
+  password: string;
+
+  name: string;
+}
+
+interface LoginFormData {
+  email: string;
+
+  password: string;
+}
 
 export default function AuthPage() {
   const [isSignUp, setIsSignUp] = useState(true);
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const [formData, setFormData] = useState<IAttributes[]>([]);
+
+  const [inputValues, setInputValues] = useState<
+    Partial<SignUpFormData & LoginFormData>
+  >({});
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [error, setError] = useState<string | null>("Not valid");
+
+  useEffect(() => {
+    const type = searchParams.get("type");
+
+    setIsSignUp(type !== "login");
+  }, [searchParams]);
+
+  useEffect(() => {
+    setIsLoading(true);
+
+    setError(null);
+
+    const fetchData = isSignUp ? getSignupFormData : getLoginFormData;
+
+    fetchData()
+      .then((data) => setFormData(data))
+
+      .catch((err) => setError("Failed to load form data. Please try again."))
+
+      .finally(() => setIsLoading(false));
+  }, [isSignUp]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    setInputValues((prevValues) => ({ ...prevValues, [name]: value }));
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+
+    setIsSubmitting(true);
+
+    setError(null);
+
+    try {
+      if (isSignUp) {
+        if (inputValues.email && inputValues.password && inputValues.name) {
+          const response = await handleSignupSubmit(
+            inputValues as SignUpFormData
+          );
+
+          if ("identifier" in response) {
+            setInputValues({});
+
+            setIsSignUp(false);
+
+            toast("User has been created", {
+              description: "Please enter your credentials to log in.",
+
+              duration: 5000,
+            });
+          } else {
+            setError(response.message);
+          }
+        } else {
+          setError("請填寫所有必填欄位。");
+        }
+      } else {
+        if (inputValues.email && inputValues.password) {
+          const response = await handleLoginSubmit(
+            inputValues as LoginFormData
+          );
+
+          if (response.message) {
+            setError(response.message);
+          }
+        } else {
+          setError("請填寫所有必填欄位。");
+        }
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "An error occurred. Please try again."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const toggleForm = () => {
     setIsSignUp(!isSignUp);
+    setError(null);
+    setInputValues({});
   };
 
   return (
@@ -38,6 +161,64 @@ export default function AuthPage() {
                 : "歡迎回到 DemoStore！請登入以繼續你的購物旅程。"}
             </p>
           </div>
+
+          {isLoading ? (
+            <div className="flex justify-center items-center h-64">
+              <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+            </div>
+          ) : (
+            <form className="space-y-4 sm:space-y-6" onSubmit={handleSubmit}>
+              {formData.map((field: any) => (
+                <div key={field.marker}>
+                  <Label
+                    htmlFor={field.marker}
+                    className="text-base sm:text-lg text-gray-400 mb-1 sm:mb-2 block"
+                  >
+                    {field.localizeInfos.title}
+                  </Label>
+
+                  <Input
+                    id={field.marker}
+                    type={field.marker === "password" ? "password" : "text"}
+                    name={field.marker}
+                    className="text-base sm:text-lg p-4 sm:p-6"
+                    placeholder={field.localizeInfos.title}
+                    value={
+                      inputValues[field.marker as keyof typeof inputValues] ||
+                      ""
+                    }
+                    onChange={handleInputChange}
+                    disabled={isSubmitting}
+                  />
+                </div>
+              ))}
+
+              {error && (
+                <div className="text-red-500 text mt-2 text-center">
+                  {error}
+                </div>
+              )}
+
+              <div>
+                <Button
+                  className="w-full bg-gradient-to-r from-purple-500 via-pink-500 to-red-500
+                hover:from-purple-600 hover:via-pink-600 hover:to-red-600 text-white text-base
+                sm:text-lx font-bold p-4 sm:p-6 rounded-md shadow-xl transition duration-300
+                ease-in-out cursor-pointer"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <Loader2 className="h-5 w-5 sm:w-6 animate-spin" />
+                  ) : isSignUp ? (
+                    "註冊"
+                  ) : (
+                    "登入"
+                  )}
+                </Button>
+              </div>
+            </form>
+          )}
+
           <div className="mt-4 sm:mt-5 flex items-center justify-center">
             <p className="text-base sm:text-lg lg:text-xl text-gray-600">
               {isSignUp ? "已經是會員嗎？" : "還不是會員嗎？"}

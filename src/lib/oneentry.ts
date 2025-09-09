@@ -1,7 +1,7 @@
 import { defineOneEntry } from "oneentry";
 
-import retrieveRefreshToken from "../../actions/auth/retrieveRefreshToken";
-import storeRefreshToken from "../../actions/auth/storeRefreshToken";
+import retrieveRefreshToken from "@/actions/auth/retrieveRefreshToken";
+import storeRefreshToken from "@/actions/auth/storeRefreshToken";
 
 export type ApiClientType = ReturnType<typeof defineOneEntry> | null;
 
