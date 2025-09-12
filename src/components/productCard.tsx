@@ -8,7 +8,35 @@ import { Button } from "./ui/button";
 
 import Image from "next/image";
 
+import useCartStore from "@/stores/cartStore";
+
+import { IProduct } from "@/types/product";
+
+import { toast } from "sonner";
+
 const ProductCard = ({ product }: { product: any }) => {
+  const addToCart = useCartStore((state) => state.addToCart);
+
+  const handleAddToCart = (product: IProduct) => {
+    addToCart({
+      id: product.id,
+
+      name: product.attributeValues.p_title.value || "Product",
+
+      price: product.attributeValues.p_price.value,
+
+      quantity: 1,
+
+      image: product.attributeValues.p_image.value.downloadLink,
+    });
+
+    toast("Added to Cart", {
+      description: `${product.attributeValues.p_title.value} has been added to your cart`,
+
+      duration: 5000,
+    });
+  };
+
   return (
     <div>
       <div
@@ -55,6 +83,7 @@ const ProductCard = ({ product }: { product: any }) => {
             className="w-full bg-gradient-to-r from-purple-500 via-pink-500 to-red-500
              hover:from-purple-600 hover:via-pink-600 hover:to-red-600 text-white font-semibold
              cursor-pointer"
+            onClick={() => handleAddToCart(product)}
           >
             <ShoppingCart className="mr-2 h-5 w-5" />
             加入購物車
