@@ -40,18 +40,6 @@ interface OrderItem {
   products: Product[];
 }
 
-interface Order {
-  id: string;
-
-  data: string;
-
-  total: number;
-
-  status: "Processing" | "Shipped" | "Delivered" | "Cancelled";
-
-  items: OrderItem[];
-}
-
 interface IOrder {
   items: OrderItem[];
 
@@ -107,7 +95,7 @@ export default function MyOrdersPage() {
           </div>
         ) : (
           <>
-            {orders?.items.map((order, index) => (
+            {orders?.items.map((order) => (
               <div
                 key={order.id}
                 className="bg-gray-100 rounded-lg shadow-lg mb-6
@@ -120,7 +108,11 @@ export default function MyOrdersPage() {
                     </h2>
 
                     <Badge className={`text-white bg-purple-900`}>
-                      {orderStatusIcons[order.statusIdentifier as keyof typeof orderStatusIcons]}
+                      {
+                        orderStatusIcons[
+                          order.statusIdentifier as keyof typeof orderStatusIcons
+                        ]
+                      }
 
                       <span className="ml-2 capitalize">
                         {order.statusIdentifier}
@@ -168,29 +160,24 @@ export default function MyOrdersPage() {
           </>
         )}
 
-
-
-
-
         {!isLoading && orders?.total === 0 && (
-            <div className="text-center py-12 border-2 border-gray-200 rounded-lg bg-gray-100">
-                <XSquareIcon className="mx-auto h-16 w-16 text-red-400 mb-4" />
+          <div className="text-center py-12 border-2 border-gray-200 rounded-lg bg-gray-100">
+            <XSquareIcon className="mx-auto h-16 w-16 text-red-400 mb-4" />
 
-                <h2 className="text-2xl font-semibold mb-2 text-purple-500">
-                    未找到訂單
-                </h2>
+            <h2 className="text-2xl font-semibold mb-2 text-purple-500">
+              未找到訂單
+            </h2>
 
-                <p className="text-gray-400 mb-6">
-                    尚無訂單，立即開始購物。
-                </p>
+            <p className="text-gray-400 mb-6">尚無訂單，立即開始購物。</p>
 
-                <Button className="flex-1 bg-gradient-to-r from-purple-500 via-pink-500 hover:from-purple-600
+            <Button
+              className="flex-1 bg-gradient-to-r from-purple-500 via-pink-500 hover:from-purple-600
                  hover:via-pink-600 hover:to-red-600 text-white font-semibold cursor-pointer"
-                 onClick={() => router.push("/")}
-                 >
-                    前往購物
-                </Button>
-            </div>
+              onClick={() => router.push("/")}
+            >
+              前往購物
+            </Button>
+          </div>
         )}
       </div>
     </div>

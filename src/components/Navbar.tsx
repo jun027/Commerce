@@ -174,9 +174,10 @@ export default function Navbar() {
                     <Avatar className="h-8 w-8 cursor-pointer">
                       <AvatarFallback className="bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 hover:from-purple-600 hover:via-pink-600 hover:to-red-600 text-white>">
                         {user.formData
-
-                          .find((f: any) => f.marker === "name")
-
+                          .find(
+                            (f): f is { marker: "name"; value: string } =>
+                              f.marker === "name"
+                          )
                           ?.value.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
@@ -191,8 +192,10 @@ export default function Navbar() {
                       via-pink-500 to-red-500 bg-clip-text text-transparent"
                       >
                         {
-                          user.formData.find((f: any) => f.marker === "name")
-                            ?.value
+                          user.formData.find(
+                            (f): f is { marker: "name"; value: string } =>
+                              f.marker === "name"
+                          )?.value
                         }
                       </p>
 
@@ -299,12 +302,13 @@ export default function Navbar() {
             {user && (
               <div className="flex items-center px-5 mb-3">
                 <div className="flex-shrink-0">
-                  <Avatar className="h-8 w-8 border-2 border-gary-700">
+                  <Avatar className="h-8 w-8 border-2 border-gray-700">
                     <AvatarFallback>
                       {user.formData
-
-                        .find((f: any) => f.marker === "name")
-
+                        .find(
+                          (f): f is { marker: "name"; value: string } =>
+                            f.marker === "name"
+                        )
                         ?.value.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
@@ -312,7 +316,12 @@ export default function Navbar() {
 
                 <div className="ml-3">
                   <div className="text-base font-medium bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 bg-clip-text text-transparent">
-                    {user.formData.find((f: any) => f.marker === "name")?.value}
+                    {
+                      user.formData.find(
+                        (f): f is { marker: "name"; value: string } =>
+                          f.marker === "name"
+                      )?.value
+                    }
                   </div>
 
                   <div className="text-sm font-medium text-gray-500">

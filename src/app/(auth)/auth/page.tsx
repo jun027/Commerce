@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, FormEvent } from "react";
+import { useState, useEffect, FormEvent, Suspense } from "react";
+
 import { Button } from "@/components/ui/button";
 
 import { Input } from "@/components/ui/input";
@@ -33,9 +34,11 @@ interface LoginFormData {
   password: string;
 }
 
-export default function AuthPage() {
+function AuthForm() {
   const [isSignUp, setIsSignUp] = useState(true);
+
   const router = useRouter();
+
   const searchParams = useSearchParams();
 
   const [formData, setFormData] = useState<IAttributes[]>([]);
@@ -44,7 +47,7 @@ export default function AuthPage() {
     Partial<SignUpFormData & LoginFormData>
   >({});
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -52,36 +55,27 @@ export default function AuthPage() {
 
   useEffect(() => {
     const type = searchParams.get("type");
-
     setIsSignUp(type !== "login");
   }, [searchParams]);
 
   useEffect(() => {
     setIsLoading(true);
-
     setError(null);
-
     const fetchData = isSignUp ? getSignupFormData : getLoginFormData;
-
     fetchData()
       .then((data) => setFormData(data))
-
-      .catch((err) => setError("Failed to load form data. Please try again."))
-
+      .catch((err) => setError(`Failed to fetch form data: ${err}`))
       .finally(() => setIsLoading(false));
   }, [isSignUp]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-
     setInputValues((prevValues) => ({ ...prevValues, [name]: value }));
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-
     setIsSubmitting(true);
-
     setError(null);
 
     try {
@@ -93,31 +87,27 @@ export default function AuthPage() {
 
           if ("identifier" in response) {
             setInputValues({});
-
             setIsSignUp(false);
-
             toast("User has been created", {
               description: "Please enter your credentials to log in.",
-
               duration: 5000,
             });
           } else {
             setError(response.message);
           }
         } else {
-          setError("請填寫所有必填欄位。");
+          setError("請務必填寫必填欄位。");
         }
       } else {
         if (inputValues.email && inputValues.password) {
           const response = await handleLoginSubmit(
             inputValues as LoginFormData
           );
-
           if (response.message) {
             setError(response.message);
           }
         } else {
-          setError("請填寫所有必填欄位。");
+          setError("請務必填寫必填欄位。");
         }
       }
     } catch (err) {
@@ -147,14 +137,11 @@ export default function AuthPage() {
           >
             <ChevronLeft className="text-gray-500 h-6 w-6 sm:h-8 sm:w-8 border-2 rounded-full p-1" />
           </div>
+
           <div>
-            <h2
-              className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6
-         bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 bg-clip-text text-transparent pb-3"
-            >
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 bg-clip-text text-transparent pb-3">
               {isSignUp ? "註冊" : "登入"}
             </h2>
-
             <p className="text-base sm:text-lg lg:text-xl text-gray-400 mb-6 sm:mb-8">
               {isSignUp
                 ? "立即加入 DemoStore，探索你最愛商品的獨家優惠！"
@@ -168,7 +155,7 @@ export default function AuthPage() {
             </div>
           ) : (
             <form className="space-y-4 sm:space-y-6" onSubmit={handleSubmit}>
-              {formData.map((field: any) => (
+              {formData.map((field) => (
                 <div key={field.marker}>
                   <Label
                     htmlFor={field.marker}
@@ -176,7 +163,6 @@ export default function AuthPage() {
                   >
                     {field.localizeInfos.title}
                   </Label>
-
                   <Input
                     id={field.marker}
                     type={field.marker === "password" ? "password" : "text"}
@@ -184,8 +170,9 @@ export default function AuthPage() {
                     className="text-base sm:text-lg p-4 sm:p-6"
                     placeholder={field.localizeInfos.title}
                     value={
-                      inputValues[field.marker as keyof typeof inputValues] ||
-                      ""
+                      inputValues[
+                        field.marker as keyof (SignUpFormData & LoginFormData)
+                      ] || ""
                     }
                     onChange={handleInputChange}
                     disabled={isSubmitting}
@@ -194,21 +181,16 @@ export default function AuthPage() {
               ))}
 
               {error && (
-                <div className="text-red-500 text mt-2 text-center">
-                  {error}
-                </div>
+                <div className="text-red-500 mt-2 text-center">{error}</div>
               )}
 
               <div>
                 <Button
-                  className="w-full bg-gradient-to-r from-purple-500 via-pink-500 to-red-500
-                hover:from-purple-600 hover:via-pink-600 hover:to-red-600 text-white text-base
-                sm:text-lx font-bold p-4 sm:p-6 rounded-md shadow-xl transition duration-300
-                ease-in-out cursor-pointer"
+                  className="w-full bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 hover:from-purple-600 hover:via-pink-600 hover:to-red-600 text-white text-base sm:text-xl font-bold p-4 sm:p-6 rounded-md shadow-xl transition-colors duration-300 ease-in-out cursor-pointer"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
-                    <Loader2 className="h-5 w-5 sm:w-6 animate-spin" />
+                    <Loader2 className="h-5 w-5 sm:h-6 sm:w-6 animate-spin" />
                   ) : isSignUp ? (
                     "註冊"
                   ) : (
@@ -219,11 +201,11 @@ export default function AuthPage() {
             </form>
           )}
 
+          {/* Toggle form */}
           <div className="mt-4 sm:mt-5 flex items-center justify-center">
             <p className="text-base sm:text-lg lg:text-xl text-gray-600">
-              {isSignUp ? "已經是會員嗎？" : "還不是會員嗎？"}
+              {isSignUp ? "已經是會員嗎?" : "還不是會員嗎?"}
             </p>
-
             <Button
               variant="link"
               className="text-lg sm:text-xl lg:text-2xl text-gray-500 cursor-pointer"
@@ -235,5 +217,13 @@ export default function AuthPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function Component() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AuthForm />
+    </Suspense>
   );
 }

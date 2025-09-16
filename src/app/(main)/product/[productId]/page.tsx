@@ -20,6 +20,10 @@ import { toast } from "sonner";
 
 import Image from "next/image";
 
+import { IProduct } from "@/types/product";
+
+import { IProductsEntity } from "oneentry/dist/products/productsInterfaces";
+
 export default function ProductDetailPage({
   params: paramsPromise,
 }: {
@@ -27,9 +31,9 @@ export default function ProductDetailPage({
 }) {
   const [productId, setProductId] = useState<string | null>(null);
 
-  const [product, setProduct] = useState<any>(null);
+  const [product, setProduct] = useState<IProduct | null>(null);
 
-  const [relatedProducts, setRelateProducts] = useState<any[]>([]);
+  const [relatedProducts, setRelatedProducts] = useState<IProductsEntity[]>([]);
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -53,16 +57,15 @@ export default function ProductDetailPage({
 
       try {
         const productData = await getProductDetails(parseInt(productId));
+        setProduct(productData as unknown as IProduct);
 
-        setProduct(productData);
-
-        const relatedProductsData = await getRelatedProducts(
-          parseInt(productData?.productPages[0].pageId),
-
-          parseInt(productId)
-        );
-
-        setRelateProducts(relatedProductsData);
+        if (productData?.productPages?.[0]?.pageId && productId) {
+          const relatedProductsData = await getRelatedProducts(
+            parseInt(productData.productPages[0].pageId, 10),
+            parseInt(productId, 10)
+          );
+          setRelatedProducts(relatedProductsData as IProductsEntity[]);
+        }
       } catch (error) {
         console.error("Failed to fetch product details:", error);
       } finally {
@@ -87,8 +90,8 @@ export default function ProductDetailPage({
         image: product.attributeValues.p_image.value.downloadLink,
       });
 
-      toast("added to Cart", {
-        description: `${product.attributeValues.p_title.value} has been added to your cart.`,
+      toast("", {
+        description: `${product.attributeValues.p_title.value} 已加入您的購物車。`,
 
         duration: 5000,
       });
@@ -130,18 +133,19 @@ export default function ProductDetailPage({
               className="text-3xl font-bold bg-gradient-to-r from-purple-600 via-pink-500
                  to-red-500 bg-clip-text text-transparent"
             >
-              {product.attributeValues.p_title.value}
+              {product?.attributeValues?.p_title?.value || "Product Title"}
             </h1>
 
             <p className="text-xl font-semibold text-gray-700">
-              ${product.attributeValues.p_price.value.toFixed(2)}
+              ${product?.attributeValues?.p_price?.value?.toFixed(2) || "0.00"}
             </p>
 
             <div
               className="text-gray-500"
               dangerouslySetInnerHTML={{
                 __html:
-                  product.attributeValues.p_description.value[0].htmlValue,
+                  product?.attributeValues?.p_description?.value?.[0]
+                    ?.htmlValue || "",
               }}
             />
 

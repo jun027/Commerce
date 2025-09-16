@@ -119,7 +119,7 @@ export default function CartPage() {
         ) : (
           <>
             <div>
-              {cartItems.map((item, index) => (
+              {cartItems.map((item) => (
                 <div
                   key={item.id}
                   className="p-4 sm:p-6 rounded-lg shadow-lg mb-4 relative overflow-hidden 
@@ -202,7 +202,7 @@ export default function CartPage() {
             </div>
 
             <div className="p-4 sm:p-6 rounded-lg border-gray-200 border-2 shadow-lg mt-8">
-              <h2 className="text-xl sm:text-2xl font-semibold mb-4 bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 bg-clip-text text-transparent">
+              <h2 className="text-center text-xl sm:text-2xl font-semibold mb-4 bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 bg-clip-text text-transparent">
                 訂單內容
               </h2>
 
@@ -246,6 +246,24 @@ export default function CartPage() {
               )}
             </div>
           </>
+        )}
+
+        {isLoading && cartItems.length === 0 && (
+          <div className="text-center py-12">
+            <ShoppingCart className="mx-auto h-16 w-16 text-gray-400 mb-4" />
+            <h2 className="text-2xl font-semibold mb-2 bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 bg-clip-text text-transparent">
+              Your cart is empty
+            </h2>
+            <p className="text-gray-400 mb-6">
+              Looks like you haven&apos;t added any items to your cart yet.
+            </p>
+            <Button
+              className="bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 hover:from-purple-600 hover:via-pink-600 hover:to-red-600 text-white font-semibold cursor-pointer"
+              onClick={() => router.push("/")}
+            >
+              Continue Shopping
+            </Button>
+          </div>
         )}
       </div>
     </div>

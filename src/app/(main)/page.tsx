@@ -14,6 +14,8 @@ import { ICatalog } from "@/types/catalog";
 
 import Image from "next/image";
 
+import { IProductsEntity } from 'oneentry/dist/products/productsInterfaces';
+
 export default function HomePage() {
   const [products, setProducts] = useState<ICatalog[]>([]);
 
@@ -88,8 +90,10 @@ export default function HomePage() {
         {products.map((catalog) => (
           <ProductCatalog
             key={catalog?.id}
-            title={catalog?.localizeInfos?.title}
-            products={catalog.catalogProducts.items}
+            title={catalog?.localizeInfos?.title as string}
+            products={
+              catalog.catalogProducts.items as unknown as IProductsEntity[]
+            }
           />
         ))}
       </main>
