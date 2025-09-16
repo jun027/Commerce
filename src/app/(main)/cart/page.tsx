@@ -78,9 +78,7 @@ export default function CartPage() {
     0
   );
 
-  const tax = subtotal * 0.1;
-
-  const total = subtotal + tax;
+  const total = subtotal;
 
   const createOrderAndCheckout = async () => {
     const data: IOrderData = {
@@ -215,19 +213,13 @@ export default function CartPage() {
                   <span>${subtotal.toFixed(2)}</span>
                 </div>
 
-                <div className="flex justify-between">
-                  <span>稅</span>
-
-                  <span>${tax.toFixed(2)}</span>
-                </div>
-
                 <div className="border-t border-gray-700 my-2"></div>
 
                 <div className="flex justify-between text-lg font-semibold">
                   <span>總計</span>
 
                   <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 bg-clip-text text-transparent ">
-                    ${total.toFixed(2)}
+                    NT$ {total.toFixed(2)}
                   </span>
                 </div>
               </div>
@@ -240,7 +232,7 @@ export default function CartPage() {
                   onClick={createOrderAndCheckout}
                 >
                   <CreditCard className="mr-2 h-5 w-5" />
-                  下一步，結帳
+                  前往結帳
                 </Button>
               ) : (
                 <Button

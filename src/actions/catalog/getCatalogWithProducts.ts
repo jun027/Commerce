@@ -16,7 +16,6 @@ export const getCatalogWithProducts = async () => {
   if (catalogs) {
     for (const catalog of catalogs) {
       const products = await apiClient?.Products.getProductsByPageId(
-
         catalog.id,
 
         undefined,
@@ -31,11 +30,12 @@ export const getCatalogWithProducts = async () => {
           sort: null,
 
           sortKey: null,
+
+          sortOrder: null,
         }
       );
 
-
-      getCatalogWithProducts.push({ ...catalog, catalogProducts: products })
+      getCatalogWithProducts.push({ ...catalog, catalogProducts: products });
     }
     return getCatalogWithProducts;
   }

@@ -23,11 +23,24 @@ export default function HomePage() {
     const getData = async () => {
       const catalogs = await getCatalogWithProducts();
 
-      if (catalogs?.length) setProducts(catalogs);
-
+      if (catalogs?.length) {
+        const transformedCatalogs = catalogs.map((catalog) => ({
+          ...catalog,
+          catalogProducts: {
+            items: catalog.catalogProducts.items.map(
+              (item: { localizeInfos: { title: string } }) => ({
+                ...item,
+                localizeInfos: {
+                  title: item.localizeInfos?.title || "Default Title",
+                },
+              })
+            ),
+          },
+        }));
+        setProducts(transformedCatalogs);
+      }
       setIsLoading(false);
     };
-
     getData();
   }, []);
 
